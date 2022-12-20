@@ -1,0 +1,22 @@
+{
+  "mes": "202212",
+  "presupuesto": 30000,
+  "categorias": [
+    { "categoria": "Supermercado", "porcentaje": 0.16 },
+    { "categoria": "Viajes", "porcentaje": 0.13 },
+    { "categoria": "Autos", "porcentaje": 0.11 },
+    { "categoria": "Amazon", "porcentaje": 0.11 },
+    { "categoria": "Hospitales", "porcentaje": 0.07 },
+    { "categoria": "Farmacias", "porcentaje": 0.06 },
+    { "categoria": "Gasolina", "porcentaje": 0.06 },
+    { "categoria": "Restaurantes", "porcentaje": 0.06 },
+    { "categoria": "Transporte", "porcentaje": 0.05 },
+    { "categoria": "Telecomunicaciones", "porcentaje": 0.035 },
+    { "categoria": "Casa", "porcentaje": 0.03 },
+    { "categoria": "Gobierno", "porcentaje": 0.025 },
+    { "categoria": "Jorge", "porcentaje": 0.03 },
+    { "categoria": "Denisse", "porcentaje": 0.03 },
+    { "categoria": "Ropa", "porcentaje": 0.03 },
+    { "categoria": "Streaming", "porcentaje": 0.01 }
+  ]
+}
