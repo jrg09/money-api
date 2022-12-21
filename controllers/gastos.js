@@ -8,7 +8,9 @@ const getItems = async (req, res) => {
   res.send({ data });
 };
 
-const getItem = async (req, res) => {};
+const getItem = async (req, res) => {
+  res.send({ todo: true });
+};
 
 const getItemsMes = async (req, res) => {
   const { fechaIni, fechaFin } = useFechas(req.params.mes);
@@ -31,6 +33,8 @@ const getGastoMes = async (req, res) => {
     fechaFin,
   });
 
+  // console.log(new Date(fechaIni));
+
   const data = await gastoModel.aggregate([
     {
       $match: {
@@ -42,16 +46,40 @@ const getGastoMes = async (req, res) => {
     },
     {
       $group: {
-        _id: null,
-        gastado: {
+        _id: "$categoria",
+        gastoCategoria: {
           $sum: "$importe",
-        },
-        egresos: {
-          $sum: 1,
         },
       },
     },
+    {
+      $sort: { gastoCategoria: -1 },
+    },
   ]);
+
+  const setCategorias = new Map();
+  setCategorias.set("SUPERMERCADOS", "Supermercado 🛒");
+  setCategorias.set("SUPER", "Supermercado 🛒");
+  setCategorias.set("TIENDAS", "Supermercado 🛒");
+  setCategorias.set("FARMACIAS", "Salud");
+  setCategorias.set("HOSPITALES", "Salud");
+  setCategorias.set("VIAJES", "Esparcimiento ✈️  🍔");
+  setCategorias.set("RESTAURANTES", "Esparcimiento ✈️  🍔");
+  setCategorias.set("GASOLINA", "Autos");
+  setCategorias.set("AUTOS", "Autos");
+  setCategorias.set("TRANSPORTE", "Autos");
+  setCategorias.set("ROPA", "Vestido 👗 👠 💍");
+  setCategorias.set("AMAZON", "Casa 🏡");
+  setCategorias.set("CASA", "Casa 🏡");
+
+  data.forEach((categoria) => {
+    // if (setCategorias.has(categoria._id))
+    //   categoria.sup = setCategorias.get(categoria._id);
+
+    categoria.sup = setCategorias.has(categoria._id)
+      ? setCategorias.get(categoria._id)
+      : "Otros";
+  });
 
   res.send({ fechaIni, fechaFin, resultados: data.length, data });
 };
@@ -67,6 +95,19 @@ const updateItem = (req, res) => {};
 
 const deleteItem = (req, res) => {};
 
+const udpateItems = async (req, res) => {
+  const { dice, debe } = req.body;
+  const bulk = gastoModel.updateMany(
+    { categoria: dice },
+    { $set: { categoria: debe } },
+    function (err, result) {
+      if (err) res.send(err);
+      else res.send(result);
+    }
+  );
+  // res.send({ update: 1 });
+};
+
 module.exports = {
   getItems,
   getItem,
@@ -75,4 +116,5 @@ module.exports = {
   deleteItem,
   getItemsMes,
   getGastoMes,
+  udpateItems,
 };

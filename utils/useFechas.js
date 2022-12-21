@@ -2,17 +2,14 @@ const moment = require("moment");
 
 const useFechas = (mes) => {
   //construir fecha inicial y final del mes
-  //fecha inicial
-  const fechaIni = moment(
-    `${mes.substring(0, 4)}-${mes.substring(4, 6)}-01T00:00:00`
-  );
+  const fechaIni = `${mes.substring(0, 4)}-${mes.substring(4, 6)}-01T00:00:00Z`;
 
   //fecha final
-  const fechaFin = moment(fechaIni).add(1, "months");
+  const fechaFin = moment(fechaIni).add(1, "months").add(6, "hours");
 
   return {
-    fechaIni: fechaIni.format("YYYY-MM-DDT00:00:00"),
-    fechaFin: fechaFin.format("YYYY-MM-DDT00:00:00"),
+    fechaIni: fechaIni,
+    fechaFin: fechaFin.format("YYYY-MM-DDT23:59:59"),
   };
 };
 

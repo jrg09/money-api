@@ -4,8 +4,8 @@ const {
   getItem,
   createItem,
   getItemsMes,
-  get,
   getGastoMes,
+  udpateItems,
 } = require("../controllers/gastos");
 const router = express.Router();
 
@@ -16,5 +16,6 @@ router.get("/:id", getItem);
 router.get("/mes/:mes", getItemsMes);
 router.get("/gastado/:mes", getGastoMes);
 router.post("/", createItem);
+router.post("/update", udpateItems);
 
 module.exports = router;

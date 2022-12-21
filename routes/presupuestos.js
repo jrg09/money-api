@@ -4,6 +4,7 @@ const {
   getItem,
   createItem,
   getPresupuestoMes,
+  updateItem,
 } = require("../controllers/presupuestos");
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.get("/", getItems);
 router.get("/mes/:mes", getPresupuestoMes);
 router.get("/:id", getItem);
 router.post("/", createItem);
+router.put("/:id", updateItem);
 
 module.exports = router;
