@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//const port = process.env.PORT || 9091;
+const port = process.env.PORT || 9091;
 
 //aquí se invocan las rutas
 app.use("/api", require("./routes"));
