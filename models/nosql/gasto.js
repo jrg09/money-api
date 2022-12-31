@@ -2,11 +2,14 @@ const mongoose = require("mongoose");
 
 const GastoScheme = new mongoose.Schema(
   {
+    user: {
+      type: String,
+    },
+    periodo: {
+      type: String,
+    },
     fecha: {
       type: Date,
-    },
-    fechaRegistro: {
-      type: String,
     },
     rfc: {
       type: String,

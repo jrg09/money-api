@@ -1,4 +1,5 @@
-const { presupuestoModel } = require("../models");
+const { presupuestoModel, gastoModel } = require("../models");
+const { getResumenMes, getGastosMes } = require("./gastos");
 
 const getItems = async (req, res) => {
   console.log("ok");
@@ -10,7 +11,12 @@ const getItems = async (req, res) => {
 const getPresupuestoMes = async (req, res) => {
   const mes = req.params.mes;
   const data = await presupuestoModel.find({ mes });
-  res.send({ data });
+
+  const gastos = await getGastosMes(mes);
+
+  console.log("gastos", gastos);
+
+  res.send({ data, gastos });
 };
 
 const getItem = async (req, res) => {

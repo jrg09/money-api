@@ -6,6 +6,7 @@ const {
   getItemsMes,
   getGastoMes,
   udpateItems,
+  getGastoCategoriaMes,
 } = require("../controllers/gastos");
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.get("/", getItems);
 router.get("/:id", getItem);
 router.get("/mes/:mes", getItemsMes);
 router.get("/gastado/:mes", getGastoMes);
+router.get("/:categoria/:mes", getGastoCategoriaMes);
 router.post("/", createItem);
 router.post("/update", udpateItems);
 

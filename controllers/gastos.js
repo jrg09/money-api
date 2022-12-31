@@ -1,10 +1,10 @@
-const { gastoModel } = require("../models/");
+const { gastoModel, categoriaModel } = require("../models/");
 const { useFechas } = require("../utils/useFechas");
 
 const getItems = async (req, res) => {
-  console.log("ok");
+  // console.log("ok");
   const data = await gastoModel.find({});
-  console.log(data);
+  // console.log(data);
   res.send({ data });
 };
 
@@ -13,25 +13,109 @@ const getItem = async (req, res) => {
 };
 
 const getItemsMes = async (req, res) => {
-  const { fechaIni, fechaFin } = useFechas(req.params.mes);
+  const mes = req.params.mes;
+  console.log("getItemsMes", mes);
 
-  console.log({ mes: req.params.mes, fechaIni, fechaFin });
+  const result = await getGastosMes(mes);
 
-  const data = await gastoModel.find({
-    fecha: { $gte: fechaIni, $lt: fechaFin },
-  });
+  res.send(result);
+};
+
+const getGastoMes = async (req, res) => {
+  console.log("getGastoMes");
+  const mes = req.params.mes;
+  const { fechaIni, fechaFin } = useFechas(mes);
+
+  console.log({ mes, fechaIni, fechaFin });
+
+  const data = getResumenMes(mes);
 
   res.send({ fechaIni, fechaFin, resultados: data.length, data });
 };
 
-const getGastoMes = async (req, res) => {
-  const { fechaIni, fechaFin } = useFechas(req.params.mes);
+const getGastoCategoriaMes = async (req, res) => {
+  const idCategoria = req.params.categoria;
+  const mes = req.params.mes;
+  console.log("getGastoCategoriaMes", idCategoria, mes);
 
-  console.log({
-    mes: req.params.mes,
-    fechaIni,
-    fechaFin,
+  const { fechaIni, fechaFin } = useFechas(mes);
+
+  //get categorias de supCategoria
+  const categorias = await categoriaModel
+    .find({ supCategoria: idCategoria })
+    .select("categoria");
+  const categoriasSup = Array.from(
+    categorias,
+    (categoria) => categoria.categoria
+  );
+
+  const data = await gastoModel.find({
+    categoria: { $in: categoriasSup },
+    fecha: { $gte: fechaIni, $lt: fechaFin },
   });
+
+  console.log("data", data);
+
+  res.send({ fechaIni, fechaFin, resultados: data.length, data });
+  //return { algo: 1 };
+};
+
+const createItem = async (req, res) => {
+  const { body } = req;
+  // console.log(body);
+  const data = await gastoModel.create(body);
+  res.send({ data });
+};
+
+const updateItem = (req, res) => {};
+
+const deleteItem = (req, res) => {};
+
+const udpateItems = async (req, res) => {
+  const { dice, debe } = req.body;
+  const bulk = gastoModel.updateMany(
+    { categoria: dice },
+    { $set: { categoria: debe } },
+    function (err, result) {
+      if (err) res.send(err);
+      else res.send(result);
+    }
+  );
+  // res.send({ update: 1 });
+};
+
+const getGastosMes = async (mes) => {
+  const { fechaIni, fechaFin } = useFechas(mes);
+
+  console.log({ mes: mes, fechaIni, fechaFin });
+
+  const data = await gastoModel
+    .find({
+      fecha: { $gte: fechaIni, $lt: fechaFin },
+    })
+    .lean();
+  const categorias = await categoriaModel.find({});
+
+  data.forEach((gasto) => {
+    gasto.sup =
+      categorias.find((cat) => cat.categoria === gasto.categoria)
+        ?.supCategoria ?? "Otros";
+  });
+
+  // console.log(dataNew[0]);
+
+  return { fechaIni, fechaFin, resultados: data.length, data };
+};
+
+const getResumenMes = async (mes) => {
+  const { fechaIni, fechaFin } = useFechas(mes);
+
+  // console.log({
+  //   getResumenMes: "getResumenMes",
+  //   mes,
+  //   fechaIni,
+  //   fechaFin,
+  // });
 
   // console.log(new Date(fechaIni));
 
@@ -57,55 +141,25 @@ const getGastoMes = async (req, res) => {
     },
   ]);
 
-  const setCategorias = new Map();
-  setCategorias.set("SUPERMERCADOS", "Supermercado 🛒");
-  setCategorias.set("SUPER", "Supermercado 🛒");
-  setCategorias.set("TIENDAS", "Supermercado 🛒");
-  setCategorias.set("FARMACIAS", "Salud");
-  setCategorias.set("HOSPITALES", "Salud");
-  setCategorias.set("VIAJES", "Esparcimiento ✈️  🍔");
-  setCategorias.set("RESTAURANTES", "Esparcimiento ✈️  🍔");
-  setCategorias.set("GASOLINA", "Autos");
-  setCategorias.set("AUTOS", "Autos");
-  setCategorias.set("TRANSPORTE", "Autos");
-  setCategorias.set("ROPA", "Vestido 👗 👠 💍");
-  setCategorias.set("AMAZON", "Casa 🏡");
-  setCategorias.set("CASA", "Casa 🏡");
+  const categorias = await categoriaModel.find({});
 
-  data.forEach((categoria) => {
-    // if (setCategorias.has(categoria._id))
-    //   categoria.sup = setCategorias.get(categoria._id);
-
-    categoria.sup = setCategorias.has(categoria._id)
-      ? setCategorias.get(categoria._id)
-      : "Otros";
+  data.forEach((cat) => {
+    cat.sup =
+      categorias.find((c) => c.categoria === cat._id)?.supCategoria ?? "Otros";
   });
 
-  res.send({ fechaIni, fechaFin, resultados: data.length, data });
-};
+  console.log(data);
 
-const createItem = async (req, res) => {
-  const { body } = req;
-  console.log(body);
-  const data = await gastoModel.create(body);
-  res.send({ data });
-};
+  // data.forEach((categoria) => {
+  //   // if (setCategorias.has(categoria._id))
+  //   //   categoria.sup = setCategorias.get(categoria._id);
 
-const updateItem = (req, res) => {};
+  //   categoria.sup = setCategorias.has(categoria._id)
+  //     ? setCategorias.get(categoria._id)
+  //     : "Otros";
+  // });
 
-const deleteItem = (req, res) => {};
-
-const udpateItems = async (req, res) => {
-  const { dice, debe } = req.body;
-  const bulk = gastoModel.updateMany(
-    { categoria: dice },
-    { $set: { categoria: debe } },
-    function (err, result) {
-      if (err) res.send(err);
-      else res.send(result);
-    }
-  );
-  // res.send({ update: 1 });
+  return data;
 };
 
 module.exports = {
@@ -117,4 +171,7 @@ module.exports = {
   getItemsMes,
   getGastoMes,
   udpateItems,
+  getResumenMes,
+  getGastoCategoriaMes,
+  getGastosMes,
 };
